@@ -11,10 +11,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const apiKey = process.env.XAI_API_KEY;
+    const apiKey = process.env.GROQ_API_KEY;
     if (!apiKey) {
       return NextResponse.json(
-        { error: "Story generation is not configured. Please add your xAI API key." },
+        { error: "Story generation is not configured. Please add your Groq API key." },
         { status: 500 }
       );
     }
@@ -50,14 +50,14 @@ TITLE: [story title]
 STORY:
 [the full story text]`;
 
-    const response = await fetch("https://api.x.ai/v1/chat/completions", {
+    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "grok-3",
+        model: "llama-3.3-70b-versatile",
         messages: [
           {
             role: "system",
@@ -73,7 +73,7 @@ STORY:
 
     if (!response.ok) {
       const errorData = await response.text();
-      console.error("xAI API error:", errorData);
+      console.error("Groq API error:", errorData);
       return NextResponse.json(
         { error: "Failed to generate story. Please try again." },
         { status: 500 }
