@@ -1,0 +1,127 @@
+@import "tailwindcss";
+
+:root {
+  --background: #faf8f5;
+  --foreground: #2d2a26;
+  --primary: #5b4a8a;
+  --primary-light: #7b6aaa;
+  --primary-dark: #3d2e6b;
+  --accent: #c9a84c;
+  --accent-light: #e0c875;
+  --secondary: #4a7c6f;
+  --secondary-light: #6a9c8f;
+  --surface: #ffffff;
+  --surface-hover: #f5f0eb;
+  --muted: #9a9590;
+  --border: #e8e2db;
+}
+
+.dark {
+  --background: #1a1625;
+  --foreground: #e8e2f0;
+  --primary: #9b8abf;
+  --primary-light: #b5a6d4;
+  --primary-dark: #7b6aaa;
+  --accent: #d4b85c;
+  --accent-light: #e0c875;
+  --secondary: #6a9c8f;
+  --secondary-light: #8abcaf;
+  --surface: #241f33;
+  --surface-hover: #2e2840;
+  --muted: #7a7585;
+  --border: #3a3548;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-light: var(--primary-light);
+  --color-primary-dark: var(--primary-dark);
+  --color-accent: var(--accent);
+  --color-accent-light: var(--accent-light);
+  --color-secondary: var(--secondary);
+  --color-secondary-light: var(--secondary-light);
+  --color-surface: var(--surface);
+  --color-surface-hover: var(--surface-hover);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --font-sans: "Nunito", "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: "Nunito", "Segoe UI", system-ui, -apple-system, sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--muted);
+  border-radius: 4px;
+}
+
+/* Decorative Islamic pattern overlay */
+.islamic-pattern {
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%235b4a8a' fill-opacity='0.05'%3E%3Cpath d='M30 0L60 30L30 60L0 30z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+.dark .islamic-pattern {
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239b8abf' fill-opacity='0.06'%3E%3Cpath d='M30 0L60 30L30 60L0 30z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* Star/sparkle animation */
+@keyframes twinkle {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+
+.animate-twinkle {
+  animation: twinkle 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+/* Story text styling */
+.story-text {
+  line-height: 1.9;
+  font-size: 1.125rem;
+}
+
+.story-text p {
+  margin-bottom: 1rem;
+}
