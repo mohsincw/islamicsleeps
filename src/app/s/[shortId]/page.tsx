@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { cache } from "react";
 import StoryReader from "@/components/StoryReader";
 import StorySections from "@/components/StorySections";
 import type { WhatItMeans } from "@/data/types";
@@ -21,7 +22,8 @@ interface SharedStoryRow {
   child_name: string | null;
 }
 
-async function fetchSharedStory(shortId: string): Promise<SharedStoryRow | null> {
+// cache() dedupes the lookup between generateMetadata and the page render.
+const fetchSharedStory = cache(async (shortId: string): Promise<SharedStoryRow | null> => {
   if (!isShortId(shortId)) return null;
   const supabase = getSupabase();
   if (!supabase) return null;
@@ -33,7 +35,7 @@ async function fetchSharedStory(shortId: string): Promise<SharedStoryRow | null>
     return null;
   }
   return data;
-}
+});
 
 export async function generateMetadata({
   params,
@@ -42,7 +44,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { shortId } = await params;
   const story = await fetchSharedStory(shortId);
-  if (!story) return { title: "Story not found" };
+  if (!story) notFound();
   const description = `An Islamic bedtime story${
     story.child_name ? ` for ${story.child_name}` : ""
   }${story.topic ? ` about ${story.topic}` : ""} — made with IslamicSleeps.`;

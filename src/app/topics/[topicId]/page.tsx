@@ -5,6 +5,9 @@ import StoryCard from "@/components/StoryCard";
 import { getStoriesByTopic } from "@/data/stories";
 import { getTopic, topics } from "@/data/topics";
 
+// Every topic id is known at build time; anything else is a hard 404.
+export const dynamicParams = false;
+
 export function generateStaticParams() {
   return topics.map((topic) => ({ topicId: topic.id }));
 }

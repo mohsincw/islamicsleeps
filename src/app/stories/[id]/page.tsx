@@ -8,6 +8,9 @@ import { getStoriesByTopic, getStory, stories } from "@/data/stories";
 import { getTopic } from "@/data/topics";
 import { ageGroupsLabel } from "@/lib/ages";
 
+// Every story id is known at build time; anything else is a hard 404.
+export const dynamicParams = false;
+
 export function generateStaticParams() {
   return stories.map((story) => ({ id: story.id }));
 }
