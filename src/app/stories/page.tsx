@@ -1,24 +1,60 @@
-"use client";
-
-import { useState } from "react";
-import { stories } from "@/data/stories";
+import type { Metadata } from "next";
+import Link from "next/link";
 import StoryCard from "@/components/StoryCard";
+import { stories } from "@/data/stories";
+import { getTopic, topics } from "@/data/topics";
+import { AGE_BUCKETS, isAgeBucket } from "@/lib/ages";
 
-const ageFilters = [
-  { value: "all", label: "All Ages" },
-  { value: "toddler", label: "Toddlers (2-5)" },
-  { value: "kids", label: "Kids (5-10)" },
-];
+export const metadata: Metadata = {
+  title: "Story Library",
+  description:
+    "Handcrafted Islamic bedtime stories organised by age and moral topic — honesty, patience, gratitude, salah, and more.",
+};
 
-export default function StoriesPage() {
-  const [ageFilter, setAgeFilter] = useState("all");
+function filterHref(age?: string, topic?: string) {
+  const params = new URLSearchParams();
+  if (age) params.set("age", age);
+  if (topic) params.set("topic", topic);
+  const qs = params.toString();
+  return qs ? `/stories?${qs}` : "/stories";
+}
 
-  const filtered =
-    ageFilter === "all"
-      ? stories
-      : stories.filter(
-          (s) => s.ageGroup === ageFilter || s.ageGroup === "all"
-        );
+function Pill({
+  href,
+  active,
+  children,
+}: {
+  href: string;
+  active: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <Link
+      href={href}
+      className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+        active
+          ? "bg-primary text-white"
+          : "bg-surface border border-border text-foreground hover:border-primary/30"
+      }`}
+    >
+      {children}
+    </Link>
+  );
+}
+
+export default async function StoriesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ age?: string; topic?: string }>;
+}) {
+  const params = await searchParams;
+  const age = params.age && isAgeBucket(params.age) ? params.age : undefined;
+  const topic = params.topic && getTopic(params.topic) ? params.topic : undefined;
+
+  const filtered = stories.filter(
+    (s) =>
+      (!age || s.ageGroups.includes(age)) && (!topic || s.topicId === topic)
+  );
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -31,41 +67,51 @@ export default function StoriesPage() {
         </p>
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-wrap gap-2 mb-8">
-        {ageFilters.map((f) => (
-          <button
-            key={f.value}
-            onClick={() => setAgeFilter(f.value)}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-              ageFilter === f.value
-                ? "bg-primary text-white"
-                : "bg-surface border border-border text-foreground hover:border-primary/30"
-            }`}
+      {/* Age filter */}
+      <div className="flex flex-wrap gap-2 mb-4">
+        <Pill href={filterHref(undefined, topic)} active={!age}>
+          All ages
+        </Pill>
+        {AGE_BUCKETS.map((b) => (
+          <Pill
+            key={b.id}
+            href={filterHref(b.id, topic)}
+            active={age === b.id}
           >
-            {f.label}
-          </button>
+            {b.label}
+          </Pill>
+        ))}
+      </div>
+
+      {/* Topic filter */}
+      <div className="flex flex-wrap gap-2 mb-8">
+        <Pill href={filterHref(age, undefined)} active={!topic}>
+          All topics
+        </Pill>
+        {topics.map((t) => (
+          <Pill key={t.id} href={filterHref(age, t.id)} active={topic === t.id}>
+            {t.emoji} {t.concept}
+          </Pill>
         ))}
       </div>
 
       {/* Stories Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filtered.map((story) => (
-          <StoryCard
-            key={story.id}
-            id={story.id}
-            title={story.title}
-            theme={story.theme}
-            preview={story.preview}
-            ageGroup={story.ageGroup}
-          />
+          <StoryCard key={story.id} story={story} />
         ))}
       </div>
 
       {filtered.length === 0 && (
         <div className="text-center py-16 text-muted">
-          <p className="text-lg">No stories found for this age group yet.</p>
-          <p className="text-sm mt-2">Check back soon — we&apos;re adding more!</p>
+          <p className="text-lg">No stories here just yet.</p>
+          <p className="text-sm mt-2">
+            Try a different filter, or{" "}
+            <Link href="/generate" className="text-primary font-medium">
+              generate a brand-new story
+            </Link>{" "}
+            about this topic.
+          </p>
         </div>
       )}
     </div>

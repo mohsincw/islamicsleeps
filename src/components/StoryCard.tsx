@@ -1,54 +1,40 @@
-"use client";
-
 import Link from "next/link";
-
-interface StoryCardProps {
-  id: string;
-  title: string;
-  theme: string;
-  preview: string;
-  ageGroup: string;
-  href?: string;
-}
+import type { Story } from "@/data/types";
+import { getTopic } from "@/data/topics";
+import { ageGroupsLabel } from "@/lib/ages";
 
 const ageBadgeColors: Record<string, string> = {
-  toddler: "bg-secondary/10 text-secondary",
-  kids: "bg-primary/10 text-primary",
-  all: "bg-accent/20 text-accent",
+  "2-4": "bg-secondary/10 text-secondary",
+  "5-8": "bg-primary/10 text-primary",
+  "9-12": "bg-accent/20 text-accent",
 };
 
-export default function StoryCard({
-  id,
-  title,
-  theme,
-  preview,
-  ageGroup,
-  href,
-}: StoryCardProps) {
-  const link = href || `/stories/${id}`;
-  const ageLabel =
-    ageGroup === "toddler"
-      ? "Ages 2-5"
-      : ageGroup === "kids"
-        ? "Ages 5-10"
-        : "All Ages";
+export default function StoryCard({ story }: { story: Story }) {
+  const topic = getTopic(story.topicId);
+  const badgeColor =
+    story.ageGroups.length === 1
+      ? ageBadgeColors[story.ageGroups[0]]
+      : "bg-accent/20 text-accent";
 
   return (
-    <Link href={link} className="group block">
-      <div className="bg-surface rounded-2xl p-6 border border-border hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300">
+    <Link href={`/stories/${story.id}`} className="group block h-full">
+      <div className="h-full bg-surface rounded-2xl p-6 border border-border hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300">
         <div className="flex items-center gap-2 mb-3">
           <span
-            className={`text-xs font-medium px-2.5 py-1 rounded-full ${ageBadgeColors[ageGroup] || ageBadgeColors.all}`}
+            className={`text-xs font-medium px-2.5 py-1 rounded-full ${badgeColor}`}
           >
-            {ageLabel}
+            {ageGroupsLabel(story.ageGroups)}
           </span>
-          <span className="text-xs text-muted">{theme}</span>
+          <span className="text-xs text-muted truncate">
+            {topic ? `${topic.emoji} ` : ""}
+            {story.theme}
+          </span>
         </div>
         <h3 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors mb-2">
-          {title}
+          {story.title}
         </h3>
         <p className="text-muted text-sm leading-relaxed line-clamp-2">
-          {preview}
+          {story.preview}
         </p>
         <div className="mt-4 flex items-center text-primary text-sm font-medium">
           Read story

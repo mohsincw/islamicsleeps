@@ -18,6 +18,7 @@ export default function Footer() {
           <div>
             <h3 className="font-semibold text-foreground mb-3">Explore</h3>
             <ul className="space-y-2 text-sm">
+              <li><Link href="/topics" className="text-muted hover:text-primary transition-colors">Topics — the WHY questions</Link></li>
               <li><Link href="/stories" className="text-muted hover:text-primary transition-colors">Story Library</Link></li>
               <li><Link href="/generate" className="text-muted hover:text-primary transition-colors">Story Generator</Link></li>
               <li><Link href="/dua" className="text-muted hover:text-primary transition-colors">Daily Dua</Link></li>
@@ -30,6 +31,10 @@ export default function Footer() {
               All stories are crafted with care to reflect authentic Islamic values
               and teachings from the Quran and Sunnah. We strive to nurture faith,
               good character, and a love for Allah in young hearts.
+            </p>
+            <p className="text-muted/70 text-xs leading-relaxed mt-3">
+              Content is currently pending review by scholars. If you spot
+              anything that needs correcting, we would love to hear from you.
             </p>
           </div>
         </div>

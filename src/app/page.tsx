@@ -1,9 +1,39 @@
 import Link from "next/link";
-import { stories } from "@/data/stories";
+import Greeting from "@/components/Greeting";
 import StoryCard from "@/components/StoryCard";
+import { stories } from "@/data/stories";
+import { topics } from "@/data/topics";
+
+const features = [
+  {
+    icon: "🤔",
+    title: "The Big WHY Questions",
+    desc: "Why should I pray? Why be kind? Every topic answers the questions your kids actually ask.",
+    href: "/topics",
+  },
+  {
+    icon: "🔊",
+    title: "Read Aloud or Read Yourself",
+    desc: "Every story can read itself out loud in a calm bedtime voice — or you can read together.",
+    href: "/stories",
+  },
+  {
+    icon: "✨",
+    title: "Personalised Stories",
+    desc: "Create a brand-new story for your child's name, age, and the topic on their mind tonight.",
+    href: "/generate",
+  },
+  {
+    icon: "🙌",
+    title: "Daily Duas",
+    desc: "Bedtime duas with Arabic, transliteration, and what they mean — build beautiful nightly habits.",
+    href: "/dua",
+  },
+];
 
 export default function Home() {
   const featuredStories = stories.slice(0, 3);
+  const featuredTopics = topics.slice(0, 8);
 
   return (
     <>
@@ -21,14 +51,15 @@ export default function Home() {
               Beautiful Islamic bedtime stories and duas to help your little ones
               drift off to sleep with peace, faith, and love in their hearts.
             </p>
+            <Greeting />
 
             {/* CTA Buttons */}
             <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link
-                href="/stories"
+                href="/topics"
                 className="w-full sm:w-auto px-8 py-4 bg-primary text-white rounded-full font-semibold text-lg hover:bg-primary-light transition-colors shadow-lg shadow-primary/20"
               >
-                Browse Stories
+                Choose a Topic
               </Link>
               <Link
                 href="/generate"
@@ -40,7 +71,7 @@ export default function Home() {
 
             {/* Trust line */}
             <p className="mt-8 text-sm text-muted">
-              Stories inspired by the Quran & Sunnah — for ages 2 and up
+              Free for the Ummah · Inspired by the Quran &amp; Sunnah · Ages 2–12
             </p>
           </div>
         </div>
@@ -50,6 +81,39 @@ export default function Home() {
         <div className="absolute top-20 right-20 text-accent/20 text-lg animate-twinkle" style={{ animationDelay: "1s" }}>&#10022;</div>
         <div className="absolute bottom-20 left-1/4 text-accent/25 text-xl animate-twinkle" style={{ animationDelay: "2s" }}>&#10022;</div>
         <div className="absolute bottom-10 right-1/3 text-accent/15 text-2xl animate-twinkle" style={{ animationDelay: "0.5s" }}>&#10022;</div>
+      </section>
+
+      {/* Topics Section */}
+      <section className="py-20">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl font-bold text-center text-foreground mb-4">
+            Tonight&apos;s story about&hellip;?
+          </h2>
+          <p className="text-center text-muted mb-12 max-w-xl mx-auto">
+            Kids always ask <span className="font-semibold text-primary">WHY</span>.
+            Pick the question on your child&apos;s mind — each topic answers it
+            with warm stories and real meaning.
+          </p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {featuredTopics.map((topic) => (
+              <Link
+                key={topic.id}
+                href={`/topics/${topic.id}`}
+                className="group bg-surface rounded-2xl p-5 border border-border hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 text-center"
+              >
+                <div className="text-3xl mb-2">{topic.emoji}</div>
+                <p className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors leading-snug">
+                  {topic.question}
+                </p>
+              </Link>
+            ))}
+          </div>
+          <div className="mt-8 text-center">
+            <Link href="/topics" className="text-primary font-medium hover:text-primary-light transition-colors">
+              See all topics &rarr;
+            </Link>
+          </div>
+        </div>
       </section>
 
       {/* Features Section */}
@@ -64,41 +128,13 @@ export default function Home() {
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[
-              {
-                icon: "&#128214;",
-                title: "Story Library",
-                desc: "Handcrafted Islamic stories covering tawakkul, honesty, patience, gratitude, and more.",
-                href: "/stories",
-              },
-              {
-                icon: "&#10024;",
-                title: "AI Story Generator",
-                desc: "Create personalized bedtime stories tailored to your child's age and favorite Islamic themes.",
-                href: "/generate",
-              },
-              {
-                icon: "&#128588;",
-                title: "Daily Dua",
-                desc: "Bedtime duas with Arabic text, transliteration, and translation to build nightly habits.",
-                href: "/dua",
-              },
-              {
-                icon: "&#9829;",
-                title: "Save Favorites",
-                desc: "Bookmark your child's most-loved stories to revisit them again and again.",
-                href: "/favorites",
-              },
-            ].map((feature) => (
+            {features.map((feature) => (
               <Link
                 key={feature.title}
                 href={feature.href}
                 className="group bg-background rounded-2xl p-6 border border-border hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300"
               >
-                <div
-                  className="text-3xl mb-4"
-                  dangerouslySetInnerHTML={{ __html: feature.icon }}
-                />
+                <div className="text-3xl mb-4">{feature.icon}</div>
                 <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors mb-2">
                   {feature.title}
                 </h3>
@@ -136,14 +172,7 @@ export default function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {featuredStories.map((story) => (
-              <StoryCard
-                key={story.id}
-                id={story.id}
-                title={story.title}
-                theme={story.theme}
-                preview={story.preview}
-                ageGroup={story.ageGroup}
-              />
+              <StoryCard key={story.id} story={story} />
             ))}
           </div>
 
@@ -163,9 +192,9 @@ export default function Home() {
             Create a Story Just for Your Child
           </h2>
           <p className="text-muted mb-8 leading-relaxed">
-            Use our AI-powered story generator to craft a unique Islamic bedtime
-            story. Choose the age group, theme, and even add your child&apos;s name
-            to make it personal.
+            Craft a unique Islamic bedtime story in seconds. Choose the topic,
+            your child&apos;s age, and add their name — then read it together or
+            let it read itself aloud.
           </p>
           <Link
             href="/generate"

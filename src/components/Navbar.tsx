@@ -4,6 +4,30 @@ import Link from "next/link";
 import { useTheme } from "@/context/ThemeContext";
 import { useState } from "react";
 
+const navLinks = [
+  { href: "/topics", label: "Topics" },
+  { href: "/stories", label: "Stories" },
+  { href: "/generate", label: "Generate" },
+  { href: "/dua", label: "Daily Dua" },
+  { href: "/favorites", label: "Favorites" },
+];
+
+function ThemeIcon({ theme }: { theme: "light" | "dark" }) {
+  return theme === "dark" ? (
+    <svg className="w-5 h-5 text-accent" fill="currentColor" viewBox="0 0 20 20">
+      <path
+        fillRule="evenodd"
+        d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"
+        clipRule="evenodd"
+      />
+    </svg>
+  ) : (
+    <svg className="w-5 h-5 text-primary" fill="currentColor" viewBox="0 0 20 20">
+      <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
+    </svg>
+  );
+}
+
 export default function Navbar() {
   const { theme, toggleTheme } = useTheme();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -22,56 +46,21 @@ export default function Navbar() {
 
           {/* Desktop Nav */}
           <div className="hidden md:flex items-center gap-6">
-            <Link
-              href="/stories"
-              className="text-foreground/70 hover:text-primary transition-colors font-medium"
-            >
-              Stories
-            </Link>
-            <Link
-              href="/generate"
-              className="text-foreground/70 hover:text-primary transition-colors font-medium"
-            >
-              Generate
-            </Link>
-            <Link
-              href="/dua"
-              className="text-foreground/70 hover:text-primary transition-colors font-medium"
-            >
-              Daily Dua
-            </Link>
-            <Link
-              href="/favorites"
-              className="text-foreground/70 hover:text-primary transition-colors font-medium"
-            >
-              Favorites
-            </Link>
+            {navLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="text-foreground/70 hover:text-primary transition-colors font-medium"
+              >
+                {link.label}
+              </Link>
+            ))}
             <button
               onClick={toggleTheme}
-              className="p-2 rounded-full bg-surface-hover hover:bg-border transition-colors"
+              className="p-2 rounded-full bg-surface-hover hover:bg-border transition-colors cursor-pointer"
               aria-label="Toggle theme"
             >
-              {theme === "dark" ? (
-                <svg
-                  className="w-5 h-5 text-accent"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              ) : (
-                <svg
-                  className="w-5 h-5 text-primary"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
-                </svg>
-              )}
+              <ThemeIcon theme={theme} />
             </button>
           </div>
 
@@ -79,22 +68,14 @@ export default function Navbar() {
           <div className="flex items-center gap-2 md:hidden">
             <button
               onClick={toggleTheme}
-              className="p-2 rounded-full bg-surface-hover"
+              className="p-2 rounded-full bg-surface-hover cursor-pointer"
               aria-label="Toggle theme"
             >
-              {theme === "dark" ? (
-                <svg className="w-5 h-5 text-accent" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clipRule="evenodd" />
-                </svg>
-              ) : (
-                <svg className="w-5 h-5 text-primary" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
-                </svg>
-              )}
+              <ThemeIcon theme={theme} />
             </button>
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
-              className="p-2 rounded-lg bg-surface-hover"
+              className="p-2 rounded-lg bg-surface-hover cursor-pointer"
               aria-label="Toggle menu"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -111,10 +92,16 @@ export default function Navbar() {
         {/* Mobile menu */}
         {mobileOpen && (
           <div className="md:hidden pb-4 border-t border-border mt-2 pt-4 flex flex-col gap-3">
-            <Link href="/stories" className="text-foreground/70 hover:text-primary font-medium" onClick={() => setMobileOpen(false)}>Stories</Link>
-            <Link href="/generate" className="text-foreground/70 hover:text-primary font-medium" onClick={() => setMobileOpen(false)}>Generate</Link>
-            <Link href="/dua" className="text-foreground/70 hover:text-primary font-medium" onClick={() => setMobileOpen(false)}>Daily Dua</Link>
-            <Link href="/favorites" className="text-foreground/70 hover:text-primary font-medium" onClick={() => setMobileOpen(false)}>Favorites</Link>
+            {navLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="text-foreground/70 hover:text-primary font-medium"
+                onClick={() => setMobileOpen(false)}
+              >
+                {link.label}
+              </Link>
+            ))}
           </div>
         )}
       </div>

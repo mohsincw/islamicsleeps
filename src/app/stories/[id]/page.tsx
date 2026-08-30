@@ -1,42 +1,45 @@
-"use client";
-
-import { useParams, notFound } from "next/navigation";
+import type { Metadata } from "next";
 import Link from "next/link";
-import { stories } from "@/data/stories";
-import { useFavorites } from "@/hooks/useFavorites";
+import { notFound } from "next/navigation";
+import FavoriteButton from "@/components/FavoriteButton";
+import StoryReader from "@/components/StoryReader";
+import StorySections from "@/components/StorySections";
+import { getStoriesByTopic, getStory, stories } from "@/data/stories";
+import { getTopic } from "@/data/topics";
+import { ageGroupsLabel } from "@/lib/ages";
 
-export default function StoryPage() {
-  const params = useParams();
-  const story = stories.find((s) => s.id === params.id);
-  const { addFavorite, removeFavorite, isFavorite, mounted } = useFavorites();
+export function generateStaticParams() {
+  return stories.map((story) => ({ id: story.id }));
+}
 
-  if (!story) {
-    notFound();
-  }
-
-  const favorited = mounted && isFavorite(story.id);
-
-  const toggleFavorite = () => {
-    if (favorited) {
-      removeFavorite(story.id);
-    } else {
-      addFavorite({
-        id: story.id,
-        title: story.title,
-        preview: story.preview,
-        content: story.content,
-        ageGroup: story.ageGroup,
-        theme: story.theme,
-      });
-    }
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const story = getStory(id);
+  if (!story) return {};
+  return {
+    title: story.title,
+    description: story.preview,
+    openGraph: { title: story.title, description: story.preview },
   };
+}
 
-  const ageLabel =
-    story.ageGroup === "toddler"
-      ? "Ages 2-5"
-      : story.ageGroup === "kids"
-        ? "Ages 5-10"
-        : "All Ages";
+export default async function StoryPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  const story = getStory(id);
+  if (!story) notFound();
+
+  const topic = getTopic(story.topicId);
+  const moreFromTopic = getStoriesByTopic(story.topicId)
+    .filter((s) => s.id !== story.id)
+    .slice(0, 2);
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -52,48 +55,95 @@ export default function StoryPage() {
       </Link>
 
       {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center gap-2 mb-3">
+      <div className="mb-6">
+        <div className="flex flex-wrap items-center gap-2 mb-3">
           <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-primary/10 text-primary">
-            {ageLabel}
+            {ageGroupsLabel(story.ageGroups)}
           </span>
-          <span className="text-xs text-muted">{story.theme}</span>
+          {topic ? (
+            <Link
+              href={`/topics/${topic.id}`}
+              className="text-xs text-muted hover:text-primary transition-colors"
+            >
+              {topic.emoji} {story.theme}
+            </Link>
+          ) : (
+            <span className="text-xs text-muted">{story.theme}</span>
+          )}
         </div>
         <div className="flex items-start justify-between gap-4">
           <h1 className="text-3xl sm:text-4xl font-bold text-foreground">
             {story.title}
           </h1>
-          <button
-            onClick={toggleFavorite}
-            className={`shrink-0 p-2 rounded-full transition-colors ${
-              favorited
-                ? "bg-accent/10 text-accent"
-                : "bg-surface-hover text-muted hover:text-accent"
-            }`}
-            aria-label={favorited ? "Remove from favorites" : "Save to favorites"}
-          >
-            <svg className="w-6 h-6" fill={favorited ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-            </svg>
-          </button>
         </div>
       </div>
 
-      {/* Story content */}
-      <div className="bg-surface rounded-2xl p-6 sm:p-10 border border-border mb-8">
-        <div className="story-text text-foreground/90 whitespace-pre-line">
-          {story.content}
+      {/* Story content with read-aloud */}
+      <div className="mb-6">
+        <div className="bg-surface rounded-2xl p-6 sm:p-10 border border-border">
+          <StoryReader text={story.content} />
         </div>
       </div>
 
-      {/* Moral */}
-      <div className="bg-primary/5 rounded-2xl p-6 sm:p-8 border border-primary/10">
-        <div className="flex items-center gap-2 mb-3">
-          <span className="text-xl">&#10024;</span>
-          <h2 className="font-semibold text-primary">Lesson & Moral</h2>
-        </div>
-        <p className="text-foreground/80 leading-relaxed">{story.moral}</p>
+      <div className="flex items-center justify-between gap-4 mb-8">
+        <FavoriteButton
+          story={{
+            id: story.id,
+            title: story.title,
+            preview: story.preview,
+            content: story.content,
+            ageGroup: ageGroupsLabel(story.ageGroups),
+            theme: story.theme,
+            moral: story.moral,
+            whatItMeans: story.whatItMeans,
+          }}
+        />
       </div>
+
+      <StorySections
+        moral={story.moral}
+        whatItMeans={story.whatItMeans}
+        quranOrHadith={story.quranOrHadith}
+        talkAboutIt={story.talkAboutIt}
+      />
+
+      {/* More from this topic */}
+      {topic && (
+        <div className="mt-10 pt-8 border-t border-border">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-semibold text-foreground">
+              More about {topic.concept}
+            </h2>
+            <Link
+              href={`/topics/${topic.id}`}
+              className="text-sm text-primary font-medium hover:text-primary-light transition-colors"
+            >
+              {topic.question}
+            </Link>
+          </div>
+          {moreFromTopic.length > 0 ? (
+            <ul className="space-y-2">
+              {moreFromTopic.map((s) => (
+                <li key={s.id}>
+                  <Link
+                    href={`/stories/${s.id}`}
+                    className="text-primary hover:text-primary-light transition-colors"
+                  >
+                    {s.title}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-sm text-muted">
+              <Link href={`/generate?topic=${topic.id}`} className="text-primary font-medium">
+                Generate a new story
+              </Link>{" "}
+              about this topic for tonight.
+            </p>
+          )}
+        </div>
+      )}
     </div>
   );
 }

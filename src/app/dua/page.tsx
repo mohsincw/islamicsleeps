@@ -1,20 +1,19 @@
-"use client";
-
-import { useState } from "react";
+import type { Metadata } from "next";
+import DuaList from "@/components/DuaList";
 import { duas } from "@/data/duas";
 
-const categories = ["All", ...Array.from(new Set(duas.map((d) => d.category)))];
+export const metadata: Metadata = {
+  title: "Daily Dua",
+  description:
+    "Bedtime duas for children with Arabic, transliteration, translation, and authentic references.",
+};
+
+// Re-render hourly so the Dua of the Day rolls over without a rebuild.
+export const revalidate = 3600;
 
 export default function DuaPage() {
-  const [selectedCategory, setSelectedCategory] = useState("All");
-
-  const filtered =
-    selectedCategory === "All"
-      ? duas
-      : duas.filter((d) => d.category === selectedCategory);
-
-  // Pick a "dua of the day" based on date
-  const dayIndex = new Date().getDate() % duas.length;
+  // Deterministic server-side pick — same value for server and client render.
+  const dayIndex = new Date().getUTCDate() % duas.length;
   const duaOfDay = duas[dayIndex];
 
   return (
@@ -37,7 +36,7 @@ export default function DuaPage() {
         <h3 className="text-lg font-semibold text-foreground mb-4">
           {duaOfDay.title}
         </h3>
-        <div className="text-right text-2xl sm:text-3xl leading-loose text-foreground mb-4 font-serif">
+        <div className="arabic-text text-right text-2xl sm:text-3xl leading-loose text-foreground mb-4">
           {duaOfDay.arabic}
         </div>
         <p className="text-primary/80 italic mb-2">{duaOfDay.transliteration}</p>
@@ -45,49 +44,7 @@ export default function DuaPage() {
         <p className="text-xs text-muted">{duaOfDay.reference}</p>
       </div>
 
-      {/* Category filters */}
-      <div className="flex flex-wrap gap-2 mb-8">
-        {categories.map((cat) => (
-          <button
-            key={cat}
-            onClick={() => setSelectedCategory(cat)}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-              selectedCategory === cat
-                ? "bg-primary text-white"
-                : "bg-surface border border-border text-foreground hover:border-primary/30"
-            }`}
-          >
-            {cat}
-          </button>
-        ))}
-      </div>
-
-      {/* All Duas */}
-      <div className="space-y-6">
-        {filtered.map((dua) => (
-          <div
-            key={dua.id}
-            className="bg-surface rounded-2xl p-6 sm:p-8 border border-border"
-          >
-            <div className="flex items-center gap-2 mb-3">
-              <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-secondary/10 text-secondary">
-                {dua.category}
-              </span>
-            </div>
-            <h3 className="text-lg font-semibold text-foreground mb-4">
-              {dua.title}
-            </h3>
-            <div className="text-right text-xl sm:text-2xl leading-loose text-foreground mb-4 font-serif">
-              {dua.arabic}
-            </div>
-            <p className="text-primary/70 italic mb-2 text-sm">
-              {dua.transliteration}
-            </p>
-            <p className="text-foreground/80 mb-3">{dua.translation}</p>
-            <p className="text-xs text-muted">{dua.reference}</p>
-          </div>
-        ))}
-      </div>
+      <DuaList duas={duas} />
     </div>
   );
 }

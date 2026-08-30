@@ -1,54 +1,49 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useCallback } from "react";
+import type { WhatItMeans } from "@/data/types";
+import { createLocalStore, useHydrated, useLocalStore } from "@/lib/localStore";
 
 export interface FavoriteStory {
   id: string;
   title: string;
   preview: string;
   content: string;
+  /** Display value; legacy entries may hold "toddler"/"kids"/"all" — ageLabel() tolerates both. */
   ageGroup: string;
   theme: string;
   savedAt: number;
+  moral?: string;
+  whatItMeans?: WhatItMeans;
 }
 
-const STORAGE_KEY = "islamicsleeps-favorites";
+const favoritesStore = createLocalStore<FavoriteStory[]>(
+  "islamicsleeps-favorites",
+  [],
+  (raw) =>
+    Array.isArray(raw)
+      ? raw.filter(
+          (f): f is FavoriteStory =>
+            !!f && typeof f === "object" && "id" in f && "title" in f
+        )
+      : []
+);
 
 export function useFavorites() {
-  const [favorites, setFavorites] = useState<FavoriteStory[]>([]);
-  const [mounted, setMounted] = useState(false);
+  const favorites = useLocalStore(favoritesStore);
+  const mounted = useHydrated();
 
-  useEffect(() => {
-    setMounted(true);
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      try {
-        setFavorites(JSON.parse(saved));
-      } catch {
-        setFavorites([]);
-      }
-    }
+  const addFavorite = useCallback((story: Omit<FavoriteStory, "savedAt">) => {
+    favoritesStore.set((prev) =>
+      prev.some((f) => f.id === story.id)
+        ? prev
+        : [...prev, { ...story, savedAt: Date.now() }]
+    );
   }, []);
 
-  const save = useCallback((favs: FavoriteStory[]) => {
-    setFavorites(favs);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(favs));
+  const removeFavorite = useCallback((id: string) => {
+    favoritesStore.set((prev) => prev.filter((f) => f.id !== id));
   }, []);
-
-  const addFavorite = useCallback(
-    (story: Omit<FavoriteStory, "savedAt">) => {
-      const updated = [...favorites, { ...story, savedAt: Date.now() }];
-      save(updated);
-    },
-    [favorites, save]
-  );
-
-  const removeFavorite = useCallback(
-    (id: string) => {
-      save(favorites.filter((f) => f.id !== id));
-    },
-    [favorites, save]
-  );
 
   const isFavorite = useCallback(
     (id: string) => favorites.some((f) => f.id === id),

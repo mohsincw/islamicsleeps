@@ -3,6 +3,9 @@
 import { useFavorites, FavoriteStory } from "@/hooks/useFavorites";
 import { useState } from "react";
 import Link from "next/link";
+import StoryReader from "@/components/StoryReader";
+import { MoralPanel, WhySection } from "@/components/StorySections";
+import { ageLabel } from "@/lib/ages";
 
 export default function FavoritesPage() {
   const { favorites, removeFavorite, mounted } = useFavorites();
@@ -66,7 +69,7 @@ export default function FavoritesPage() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-2">
                       <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-primary/10 text-primary">
-                        {fav.ageGroup}
+                        {ageLabel(fav.ageGroup)}
                       </span>
                       <span className="text-xs text-muted">{fav.theme}</span>
                     </div>
@@ -80,7 +83,7 @@ export default function FavoritesPage() {
                       onClick={() =>
                         setExpandedId(expandedId === fav.id ? null : fav.id)
                       }
-                      className="p-2 rounded-full bg-surface-hover text-foreground/60 hover:text-primary transition-colors"
+                      className="p-2 rounded-full bg-surface-hover text-foreground/60 hover:text-primary transition-colors cursor-pointer"
                       aria-label={expandedId === fav.id ? "Collapse" : "Read story"}
                     >
                       <svg
@@ -99,7 +102,7 @@ export default function FavoritesPage() {
                     </button>
                     <button
                       onClick={() => removeFavorite(fav.id)}
-                      className="p-2 rounded-full bg-surface-hover text-muted hover:text-red-500 transition-colors"
+                      className="p-2 rounded-full bg-surface-hover text-muted hover:text-red-500 transition-colors cursor-pointer"
                       aria-label="Remove from favorites"
                     >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -112,9 +115,17 @@ export default function FavoritesPage() {
 
               {expandedId === fav.id && (
                 <div className="px-6 pb-6 border-t border-border pt-4">
-                  <div className="story-text text-foreground/90 whitespace-pre-line">
-                    {fav.content}
-                  </div>
+                  <StoryReader text={fav.content} />
+                  {fav.moral && (
+                    <div className="mt-6">
+                      <MoralPanel moral={fav.moral} />
+                    </div>
+                  )}
+                  {fav.whatItMeans && (
+                    <div className="mt-6">
+                      <WhySection whatItMeans={fav.whatItMeans} />
+                    </div>
+                  )}
                 </div>
               )}
             </div>
